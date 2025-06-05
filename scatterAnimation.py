@@ -69,9 +69,13 @@ with open(filename, "r") as file:
         for i in range(width * length):
             line = file.readline()
             parts = line.strip().split()
-            x.append(float(parts[0]))
-            y.append(float(parts[1]))
-            val.append(float(parts[4]))
+            
+            # ignore noise data
+            if float(parts[4]) < 299.5 or float(parts[4]) > 300.5:
+                x.append(float(parts[0]))
+                y.append(float(parts[1]))
+                val.append(float(parts[4]))
+
         frames.append((np.array(x), np.array(y), np.array(val)))
 
     print("100%")
@@ -95,5 +99,5 @@ def update(frame_index):
     return (sc,)
 
 
-ani = animation.FuncAnimation(fig, update, frames=depth, interval=100, blit=True)
+ani = animation.FuncAnimation(fig, update, frames=depth, interval=200, blit=True)
 plt.show()
