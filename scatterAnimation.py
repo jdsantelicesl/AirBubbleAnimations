@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import numpy as np
+import os
 
 x_min = float("inf")
 x_max = 0
@@ -11,7 +12,21 @@ val_max = 0
 
 idx = 0
 
-with open("zz.DAT", "r") as file:
+filename = ""
+while not os.path.exists(filename):
+    filename = input("Enter .dat/.DAT filename: ")
+    name, ext = filename.split('.')
+
+    if ext.lower() != "dat":
+        print("Please enter a .dat/.DAT file.")
+        filename = ""
+
+    elif not os.path.exists(filename):
+        print("The file entered is not in the current directory, please reenter.")
+
+print("opening file...", end="", flush=True)
+
+with open(filename, "r") as file:
     tot_lines = 0
     for line in file:
         tot_lines += 1
@@ -34,6 +49,8 @@ with open("zz.DAT", "r") as file:
             val_max = val
         if val < val_min:
             val_min = val
+
+    print("50%...", end="", flush=True)
             
     width = 328
     length = 601
@@ -55,6 +72,8 @@ with open("zz.DAT", "r") as file:
             y.append(float(parts[1]))
             val.append(float(parts[4]))
         frames.append((np.array(x), np.array(y), np.array(val)))
+
+    print("100%")
 
 # Create the plot
 fig, ax = plt.subplots()
