@@ -6,6 +6,10 @@ x_min = float("inf")
 x_max = 0
 y_min = float("inf")
 y_max = 0
+val_min = float('inf')
+val_max = 0
+
+idx = 0
 
 with open("zz.DAT", "r") as file:
     tot_lines = 0
@@ -14,6 +18,7 @@ with open("zz.DAT", "r") as file:
         parts = line.strip().split()
         x = float(parts[0])
         y = float(parts[1])
+        val = float(parts[4])
 
         if x > x_max:
             x_max = x
@@ -25,6 +30,11 @@ with open("zz.DAT", "r") as file:
         if y < y_min:
             y_min = y
 
+        if val > val_max:
+            val_max = val
+        if val < val_min:
+            val_min = val
+            
     width = 328
     length = 601
     depth = tot_lines / 197128
@@ -48,7 +58,7 @@ with open("zz.DAT", "r") as file:
 
 # Create the plot
 fig, ax = plt.subplots()
-sc = ax.scatter([], [], c=[], cmap="coolwarm", s=10, vmin=297, vmax=303)
+sc = ax.scatter([], [], c=[], cmap="coolwarm", s=0.1, vmin=val_min, vmax=val_max)
 ax.set_xlim(x_min, x_max)
 ax.set_ylim(y_min, y_max)
 plt.colorbar(sc, label="Temperature")
@@ -61,5 +71,5 @@ def update(frame_index):
     return (sc,)
 
 
-ani = animation.FuncAnimation(fig, update, frames=depth, interval=100, blit=False)
+ani = animation.FuncAnimation(fig, update, frames=depth, interval=100, blit=True)
 plt.show()
