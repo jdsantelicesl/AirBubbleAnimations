@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import numpy as np
 import os
+import psutil
 
 x_min = float("inf")
 x_max = 0
@@ -51,7 +52,7 @@ with open(filename, "r") as file:
             val_min = val
 
     print("50%...", end="", flush=True)
-            
+
     width = 328
     length = 601
     depth = tot_lines / 197128
@@ -74,6 +75,10 @@ with open(filename, "r") as file:
         frames.append((np.array(x), np.array(y), np.array(val)))
 
     print("100%")
+
+# check memory usage
+process = psutil.Process(os.getpid())
+print(f"Memory usage: {process.memory_info().rss / (1024 * 1024):.2f} MB")
 
 # Create the plot
 fig, ax = plt.subplots()
