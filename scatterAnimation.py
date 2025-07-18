@@ -69,7 +69,7 @@ with open(filename, "r") as file:
         for i in range(width * length):
             line = file.readline()
             parts = line.strip().split()
-            
+
             # ignore noise data
             if float(parts[4]) < 299.5 or float(parts[4]) > 300.5:
                 x.append(float(parts[0]))
@@ -80,12 +80,24 @@ with open(filename, "r") as file:
 
     print("100%")
 
+# Load terrain
+terr_x = []
+terr_y = []
+
+with open("terrain.txt", "r") as file:
+    for line in file:
+        vals = line.strip().split()
+        terr_x.append(float(vals[0]))
+        terr_y.append(float(vals[1]))
+
+
 # check memory usage
 process = psutil.Process(os.getpid())
 print(f"Memory usage: {process.memory_info().rss / (1024 * 1024):.2f} MB")
 
 # Create the plot
 fig, ax = plt.subplots()
+ax.scatter(terr_x, terr_y, color="gray", s=1)
 sc = ax.scatter([], [], c=[], cmap="coolwarm", s=0.1, vmin=val_min, vmax=val_max)
 ax.set_xlim(x_min, x_max)
 ax.set_ylim(y_min, y_max)
