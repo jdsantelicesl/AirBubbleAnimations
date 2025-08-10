@@ -4,6 +4,8 @@ from matplotlib.animation import FuncAnimation
 import numpy as np
 import pandas as pd
 from scipy.interpolate import griddata
+import os
+import psutil
 
 
 x_min = float("inf")
@@ -68,6 +70,21 @@ with open("zz_test1.dat", "r") as file:
 
     print("100%")
 
+
+# Load terrain
+terr_x = []
+terr_y = []
+
+print("Loading Terrain...")
+
+with open("terrain.txt", "r") as file:
+    for line in file:
+        vals = line.strip().split()
+        terr_x.append(float(vals[0]))
+        terr_y.append(float(vals[1]))
+
+print('Finished loading terrain')
+
 # Smaller window values
 # x_min = -1000
 # x_max = 4000
@@ -103,7 +120,13 @@ for i in range(depth):
 print("finished interpolating")
 
 
+# check memory usage
+process = psutil.Process(os.getpid())
+print(f"Memory usage: {process.memory_info().rss / (1024 * 1024):.2f} MB")
+
+
 fig, ax = plt.subplots()
+ax.scatter(terr_x, terr_y, color="gray", s=1)
 cp = ax.contour(grid_x, grid_y, grid_z_arr[0], levels=20, cmap="coolwarm")
 # cbar = fig.colorbar(cp)
 ax.set_title("Contour Plot from (x, y, value)")
@@ -116,8 +139,9 @@ def update(frame_index):
     # Remove old contour collections
     for coll in ax.collections:
         coll.remove()
-    
+
     # redraw
+    ax.scatter(terr_x, terr_y, color="gray", s=1)
     ax.contour(grid_x, grid_y, grid_z_arr[frame_index], levels=20, cmap="coolwarm")
 
 
