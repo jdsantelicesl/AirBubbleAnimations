@@ -1,8 +1,6 @@
-import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import numpy as np
-import pandas as pd
 from scipy.interpolate import griddata
 import os
 import psutil
@@ -43,11 +41,17 @@ with open("zz_test1.dat", "r") as file:
 
     print("50%...", end="", flush=True)
 
+
+    # Matrix dimensions per slice
     width = 328
     length = 601
-    depth = tot_lines / 197128
+
+    # number of frames
+    depth = (tot_lines / (width*length))
+
+
     if depth != round(depth):
-        raise ValueError("file does not contain an even amount of visual slices")
+        raise ValueError("file does not contain an even amount of visual slices. Check width and length values")
     depth = int(depth)
 
     # reset file pointer to iterate again
@@ -60,8 +64,8 @@ with open("zz_test1.dat", "r") as file:
             line = file.readline()
             parts = line.strip().split()
 
-            # ignore noise data
-            if float(parts[4]) < 299.5 or float(parts[4]) > 300.5:
+            # ignore noise data, change noise parameters as needed
+            if float(parts[4]) > 299.5 or float(parts[4]) < 300.5:
                 x.append(float(parts[0]))
                 y.append(float(parts[1]))
                 val.append(float(parts[4]))
@@ -75,7 +79,7 @@ with open("zz_test1.dat", "r") as file:
 terr_x = []
 terr_y = []
 
-print("Loading Terrain...")
+print("\nLoading Terrain...")
 
 with open("terrain.txt", "r") as file:
     for line in file:
@@ -92,7 +96,7 @@ print('Finished loading terrain')
 # y_min = 0
 
 # contour definition detail level. Higher is better defined
-definition = 1000
+definition = 500
 
 # Create a grid to interpolate onto
 grid_x, grid_y = np.meshgrid(
@@ -107,12 +111,19 @@ grid_z_arr = []
 
 # load all z grids into an array so save compute time at rendering
 for i in range(depth):
+
+    if frames[i][0].size == 0 or frames[i][1].size == 0 or frames[i][2].size == 0:
+        print(f"null frame item, depth: {i}")
+        continue
+
+    # Choose an interpolation method: cubic, linear, or nearest. 
+    # Nearest seems to increase interpolation speed by a lot and provides adequate contour lines
     grid_z_arr.append(
         griddata(
-            (frames[i][0], frames[i][1]), frames[i][2], (grid_x, grid_y), method="cubic"
+            (frames[i][0], frames[i][1]), frames[i][2], (grid_x, grid_y), method="nearest"
         )
     )
-    
+
     # Display percentage completion
     if i % (depth // 10) == 0:
         print(f"{int((i/depth)*100)}%...", end="\r", flush=True)
