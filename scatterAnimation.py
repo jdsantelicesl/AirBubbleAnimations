@@ -1,8 +1,13 @@
+import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import numpy as np
 import os
 import psutil
+
+# set backend for features (scrolling)
+matplotlib.use("TkAgg")
+
 
 x_min = float("inf")
 x_max = 0

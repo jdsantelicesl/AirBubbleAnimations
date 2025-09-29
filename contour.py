@@ -15,7 +15,7 @@ val_max = 0
 
 print("loading file...")
 
-with open("zz_test1.dat", "r") as file:
+with open("zz.dat", "r") as file:
     tot_lines = 0
     for line in file:
         tot_lines += 1
@@ -64,8 +64,10 @@ with open("zz_test1.dat", "r") as file:
             line = file.readline()
             parts = line.strip().split()
 
+            # Noise Filtering
+            # NOTE: reduce noise filtering if Deleted Frame error is thrown (line 118)
             # ignore noise data, change noise parameters as needed
-            if float(parts[4]) > 299.5 or float(parts[4]) < 300.5:
+            if float(parts[4]) < 299.99 or float(parts[4]) > 300.01:
                 x.append(float(parts[0]))
                 y.append(float(parts[1]))
                 val.append(float(parts[4]))
@@ -113,14 +115,13 @@ grid_z_arr = []
 for i in range(depth):
 
     if frames[i][0].size == 0 or frames[i][1].size == 0 or frames[i][2].size == 0:
-        print(f"null frame item, depth: {i}")
-        continue
+        raise ValueError("Noise Filtering elimitated all values of a frame. Please reduce noise filtering on line 68.")
 
     # Choose an interpolation method: cubic, linear, or nearest. 
     # Nearest seems to increase interpolation speed by a lot and provides adequate contour lines
     grid_z_arr.append(
         griddata(
-            (frames[i][0], frames[i][1]), frames[i][2], (grid_x, grid_y), method="nearest"
+            (frames[i][0], frames[i][1]), frames[i][2], (grid_x, grid_y), method="cubic"
         )
     )
 
@@ -140,7 +141,7 @@ fig, ax = plt.subplots()
 ax.scatter(terr_x, terr_y, color="gray", s=1)
 cp = ax.contour(grid_x, grid_y, grid_z_arr[0], levels=20, cmap="coolwarm")
 # cbar = fig.colorbar(cp)
-ax.set_title("Contour Plot from (x, y, value)")
+ax.set_title("Airbuble Temperature Contour Plot")
 ax.set_xlabel("X")
 ax.set_ylabel("Y")
 
